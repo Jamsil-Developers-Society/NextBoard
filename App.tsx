@@ -10,11 +10,13 @@ import {
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {Colors, Header} from 'react-native/Libraries/NewAppScreen';
+import {GestureHandlerRootView} from 'react-native-gesture-handler';
 
 // 👇 Login 스크린 import (만약 상대 경로 다르면 수정)
 import Login from './src/screen/Login';
 import Signup from './src/screen/SignUp';
-import BoardScreen from './src/screen/BoardScreen';
+// import BoardScreen from './src/screen/BoardScreen';
+import BoardScreen from './src/screen/BoardScreen_2';
 
 const Stack = createNativeStackNavigator();
 
@@ -51,16 +53,18 @@ const Stack = createNativeStackNavigator();
 
 const App = () => {
   return (
-    <NavigationContainer>
-      <Stack.Navigator
-        initialRouteName="BoardScreen"
-        screenOptions={{headerShown: false}}>
-        {/* <Stack.Screen name="Home" component={HomeScreen} /> */}
-        <Stack.Screen name="Login" component={Login} />
-        <Stack.Screen name="Signup" component={Signup} />
-        <Stack.Screen name="BoardScreen" component={BoardScreen} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <GestureHandlerRootView style={{flex: 1}}>
+      <NavigationContainer>
+        <Stack.Navigator
+          initialRouteName="BoardScreen"
+          screenOptions={{headerShown: false}}>
+          {/* <Stack.Screen name="Home" component={HomeScreen} /> */}
+          <Stack.Screen name="Login" component={Login} />
+          <Stack.Screen name="Signup" component={Signup} />
+          <Stack.Screen name="BoardScreen" component={BoardScreen} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </GestureHandlerRootView>
   );
 };
 

@@ -94,7 +94,7 @@ const BoardScreen: React.FC = () => {
           points: [{x: locationX, y: locationY}], // 추가
         };
       },
-      onPanResponderMove: e => {
+      onPanResponderMove: (e, gestureState) => {
         const {locationX, locationY} = e.nativeEvent;
         const point = {x: locationX, y: locationY};
         if (currentPath.current) {
@@ -146,8 +146,8 @@ const BoardScreen: React.FC = () => {
           />
         ))}
       </Canvas> */}
-      <View style={styles.container} {...panResponder.panHandlers}>
-        <Canvas ref={canvasRef} style={styles.canvas}>
+      {/* <View style={styles.container} {...panResponder.panHandlers}>
+        <Canvas ref={canvasRef} style={styles.canvas} pointerEvents="none">
           {paths.map((p, i) =>
             p && p.path ? (
               <Path
@@ -169,6 +169,35 @@ const BoardScreen: React.FC = () => {
             />
           )}
         </Canvas>
+      </View> */}
+
+      <View style={styles.container}>
+        <Canvas ref={canvasRef} style={styles.canvas}>
+          {paths.map((p, i) => (
+            <Path
+              key={i}
+              path={p.path}
+              color={p.color}
+              style="stroke"
+              strokeWidth={p.strokeWidth}
+            />
+          ))}
+          {currentPath.current && (
+            <Path
+              path={currentPath.current.path}
+              color={currentPath.current.color}
+              style="stroke"
+              strokeWidth={currentPath.current.strokeWidth}
+            />
+          )}
+        </Canvas>
+
+        {/* 터치 감지를 위한 오버레이 */}
+        <View
+          style={StyleSheet.absoluteFill}
+          {...panResponder.panHandlers}
+          pointerEvents="box-only" // 🔥 핵심!
+        />
       </View>
 
       <View style={styles.controls}>
