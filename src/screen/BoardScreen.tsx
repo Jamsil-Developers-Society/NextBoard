@@ -1,4 +1,4 @@
-import React, {useRef, useState} from 'react';
+import React, {useRef, useState, useEffect} from 'react';
 import {
   View,
   Button,
@@ -21,6 +21,7 @@ interface DrawPath {
   path: SkPath;
   color: string;
   strokeWidth: number;
+  points: { x: number; y: number }[]; // 추가
 }
 
 const BoardScreen: React.FC = () => {
@@ -31,6 +32,52 @@ const BoardScreen: React.FC = () => {
   const [paths, setPaths] = useState<DrawPath[]>([]);
   const currentPath = useRef<DrawPath | null>(null);
   const canvasRef = useCanvasRef();
+  const socketRef = useRef<WebSocket | null>(null);
+
+  useEffect(() => {
+  const socket = new WebSocket('ws://your.server.address/ws/path');
+  
+  socketRef.current = socket;
+
+  socket.onopen = () => {
+    console.log('WebSocket 연결됨');
+    
+    socket.onmessage = event => {
+      const message = JSON.parse(event.data);
+      
+      if (message.type === 'draw') {
+        const {color, strokeWidth, point} = message;
+        
+        const newPath = Skia.Path.Make();
+        newPath.moveTo(point.x, point.y);
+        newPath.lineTo(point.x + 0.1, point.y + 0.1);
+        
+        const newDrawPath: DrawPath = {
+          path: newPath,
+          color,
+          strokeWidth,
+          points: [point],
+        };
+        
+        setPaths(prev => [...prev, newDrawPath]);
+      }
+    };
+  };
+
+  socket.onerror = e => {
+    console.error('WebSocket 오류:', e);
+  };
+
+  socket.onclose = () => {
+    console.log('WebSocket 연결 종료');
+  };
+
+  return () => {
+    socket.close();
+  };
+  }, []);
+  
+  const [, forceUpdate] = useState(0);
 
   const panResponder = useRef(
     PanResponder.create({
@@ -44,12 +91,31 @@ const BoardScreen: React.FC = () => {
           path,
           color: mode === 'pen' ? color : '#ffffff',
           strokeWidth: lineWidth,
+          points: [{x: locationX, y: locationY}], // 추가
         };
       },
       onPanResponderMove: e => {
         const {locationX, locationY} = e.nativeEvent;
-        currentPath.current?.path.lineTo(locationX, locationY);
-        canvasRef.current?.redraw();
+        const point = {x: locationX, y: locationY};
+        if (currentPath.current) {
+          currentPath.current.path.lineTo(point.x, point.y);
+          currentPath.current.points.push(point);
+        
+          // 🔴 서버로 전송
+          if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+            const data = {
+              type: 'draw',
+              color: currentPath.current.color,
+              strokeWidth: currentPath.current.strokeWidth,
+              point,
+            };
+            socketRef.current.send(JSON.stringify(data));
+          }
+        
+          //canvasRef.current?.redraw();
+              // ✅ 실시간 갱신 유도
+          forceUpdate(n => n + 1);
+        }
       },
       onPanResponderRelease: () => {
         if (currentPath.current) {

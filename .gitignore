@@ -1,0 +1,151 @@
+# # OSX
+# #
+# .DS_Store
+
+# # Xcode
+# #
+# build/
+# *.pbxuser
+# !default.pbxuser
+# *.mode1v3
+# !default.mode1v3
+# *.mode2v3
+# !default.mode2v3
+# *.perspectivev3
+# !default.perspectivev3
+# xcuserdata
+# *.xccheckout
+# *.moved-aside
+# DerivedData
+# *.hmap
+# *.ipa
+# *.xcuserstate
+# **/.xcode.env.local
+
+# # Android/IntelliJ
+# #
+# build/
+# .idea
+# .gradle
+# local.properties
+# *.iml
+# *.hprof
+# .cxx/
+# *.keystore
+# !debug.keystore
+# .kotlin/
+
+# # node.js
+# #
+# node_modules/
+# npm-debug.log
+# yarn-error.log
+
+# # fastlane
+# #
+# # It is recommended to not store the screenshots in the git repo. Instead, use fastlane to re-generate the
+# # screenshots whenever they are needed.
+# # For more information about the recommended setup visit:
+# # https://docs.fastlane.tools/best-practices/source-control/
+
+# **/fastlane/report.xml
+# **/fastlane/Preview.html
+# **/fastlane/screenshots
+# **/fastlane/test_output
+
+# # Bundle artifact
+# *.jsbundle
+
+# # Ruby / CocoaPods
+# **/Pods/
+# /vendor/bundle/
+
+# # Temporary files created by Metro to check the health of the file watcher
+# .metro-health-check*
+
+# # testing
+# /coverage
+
+# # Yarn
+# .yarn/*
+# !.yarn/patches
+# !.yarn/plugins
+# !.yarn/releases
+# !.yarn/sdks
+# !.yarn/versions
+
+
+# ==============================================================================================================================
+# New ignore list
+
+# ───────────────────────────────────────────────────────────────────────
+# Node_modules (NPM / Yarn)
+node_modules/
+
+# ───────────────────────────────────────────────────────────────────────
+# React Native / Packager caches
+# Metro 번들러 캐시
+# (React Native 버전, OS에 따라 디렉터리 이름이 약간 다를 수 있음)
+metro-cache/
+packager-cache/
+bundler-cache/
+# Yarn v2 Berry 프로젝트인 경우
+.pnp.*
+.cache/
+
+# ───────────────────────────────────────────────────────────────────────
+# iOS
+ios/Pods/
+ios/build/
+ios/*/DerivedData/
+ios/*/xcuserdata/
+ios/*/project.xcworkspace/xcuserdata/
+# CocoaPods 통합 워크스페이스 설정(필요 시 제외)
+ios/Podfile.lock
+
+# ───────────────────────────────────────────────────────────────────────
+# Android
+android/.gradle/
+android/app/build/
+android/build/
+android/app/**/*.keystore
+.android/
+android
+
+
+# ───────────────────────────────────────────────────────────────────────
+# Xcode
+*.xcodeproj/xcuserdata/
+*.xcworkspace/xcuserdata/
+*.xcworkspace/contents.xcworkspacedata
+*.xcworkspace/xcshareddata/WorkspaceSettings.xcsettings
+# Xcode 빌드 아티팩트
+*.ipa
+*.app
+*.dSYM.zip
+*.dSYM
+
+# ───────────────────────────────────────────────────────────────────────
+# VSCode / IntelliJ / Android Studio
+.vscode/
+.idea/
+*.iml
+*.hmap
+*.hmap.dSYM
+
+# ───────────────────────────────────────────────────────────────────────
+# 환경 변수, 민감 정보
+# .gitignore
+.env
+.env.*
+# Firebase 설정 파일
+android/app/google-services.json
+ios/*/GoogleService-Info.plist
+
+# ───────────────────────────────────────────────────────────────────────
+# 로그 및 임시 파일
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+/tmp/
