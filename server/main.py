@@ -22,6 +22,7 @@ class ChatRoom:
 
     def join(self, session):
         self.members.add(session)
+        print(f"[ROOM {self.room_id}] '{session.user_name}' (user_id={session.user_id}) joined.")
         self.broadcast(session.user_name, "A new user has joined the chat.")
 
     def leave(self, session):
@@ -120,29 +121,81 @@ class ChatSessionFastAPI:
 # ChatServer
 # ✅ 수정: FastAPI handler 추가
 # ----------------------------
+
 class ChatServer:
     def __init__(self):
         self.rooms = {}
+
+    def _generate_new_room_id(self):
+        return len(self.rooms)
 
     async def handler_fastapi(self, websocket: WebSocket):
         try:
             await websocket.accept()
             init_data = await websocket.receive_text()
             data = json.loads(init_data)
+
             user_id = int(data.get("user_id"))
             user_name = data.get("user_name")
-            room_id = int(data.get("room_id"))
+            room_id_raw = data.get("room_id")
 
-            if room_id not in self.rooms:
+            # ✅ room_id 없으면 새로 만들고 입장까지 진행
+            if room_id_raw is None:
+                room_id = self._generate_new_room_id()
                 self.rooms[room_id] = ChatRoom(room_id)
-            room = self.rooms[room_id]
 
+                await websocket.send_text(json.dumps({
+                    "status": "created",
+                    "room_id": room_id
+                }))
+            else:
+                room_id = int(room_id_raw)
+                if room_id not in self.rooms:
+                    self.rooms[room_id] = ChatRoom(room_id)
+                    status = "created"
+                else:
+                    status = "joined"
+
+                await websocket.send_text(json.dumps({
+                    "status": status,
+                    "room_id": room_id
+                }))
+
+            # ✅ 입장 처리 (공통)
+            room = self.rooms[room_id]
             session = ChatSessionFastAPI(websocket, user_id, user_name, room)
             await session.handle()
+
         except Exception as e:
             traceback.print_exc()
             print(f"Connection handler error: {e}")
             await websocket.close()
+
+
+
+# class ChatServer:
+#     def __init__(self):
+#         self.rooms = {}
+
+#     async def handler_fastapi(self, websocket: WebSocket):
+#         try:
+#             await websocket.accept()
+#             init_data = await websocket.receive_text()
+#             data = json.loads(init_data)
+#             user_id = int(data.get("user_id"))
+#             user_name = data.get("user_name")
+#             room_id = int(data.get("room_id"))
+
+#             if room_id not in self.rooms:
+#                 self.rooms[room_id] = ChatRoom(room_id)
+#             room = self.rooms[room_id]
+
+#             session = ChatSessionFastAPI(websocket, user_id, user_name, room)
+#             await session.handle()
+#         except Exception as e:
+#             traceback.print_exc()
+#             print(f"Connection handler error: {e}")
+#             await websocket.close()
 
 
 # ----------------------------
