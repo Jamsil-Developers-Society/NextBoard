@@ -130,6 +130,7 @@ const BoardScreen: React.FC = () => {
           if (socketRef.current?.readyState === WebSocket.OPEN) {
             socketRef.current.send(
               JSON.stringify({
+                command: 'draw_board',
                 type: 'draw',
                 color: currentPath.current.color,
                 strokeWidth: currentPath.current.strokeWidth,
