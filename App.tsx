@@ -15,8 +15,9 @@ import {GestureHandlerRootView} from 'react-native-gesture-handler';
 // 👇 Login 스크린 import (만약 상대 경로 다르면 수정)
 import Login from './src/screen/Login';
 import Signup from './src/screen/SignUp';
-// import BoardScreen from './src/screen/BoardScreen';
-import BoardScreen from './src/screen/BoardScreen_2';
+import BoardScreen from './src/screen/BoardScreen';
+import RoomSelect from './src/screen/RoomSelect';
+// import BoardScreen from './src/screen/BoardScreen_2';
 
 const Stack = createNativeStackNavigator();
 
@@ -56,12 +57,13 @@ const App = () => {
     <GestureHandlerRootView style={{flex: 1}}>
       <NavigationContainer>
         <Stack.Navigator
-          initialRouteName="BoardScreen"
+          initialRouteName="Login"
           screenOptions={{headerShown: false}}>
           {/* <Stack.Screen name="Home" component={HomeScreen} /> */}
           <Stack.Screen name="Login" component={Login} />
           <Stack.Screen name="Signup" component={Signup} />
           <Stack.Screen name="BoardScreen" component={BoardScreen} />
+          <Stack.Screen name="RoomSelect" component={RoomSelect} />
         </Stack.Navigator>
       </NavigationContainer>
     </GestureHandlerRootView>
