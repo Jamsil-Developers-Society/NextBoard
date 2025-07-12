@@ -123,31 +123,6 @@ class ChatSession:
         except Exception as e:
             await self.send_message(f"Error parsing message: {str(e)}")
 
-
-'''
-class ChatServer:
-    def __init__(self):
-        self.rooms = {}  # room_id -> ChatRoom
-
-    async def handler(self, websocket, path):
-        try:
-            init_data = await websocket.recv()
-            data = json.loads(init_data)
-            user_id = int(data.get("user_id"))
-            user_name = data.get("user_name")
-            room_id = int(data.get("room_id"))
-
-            if room_id not in self.rooms:
-                self.rooms[room_id] = ChatRoom(room_id)
-            room = self.rooms[room_id]
-
-            session = ChatSession(websocket, user_id, user_name, room)
-            await session.handle()
-        except Exception as e:
-            print(f"Connection handler error: {e}")
-            await websocket.close()
-'''
-
 class ChatServer:
     def __init__(self):
         self.rooms = {}
