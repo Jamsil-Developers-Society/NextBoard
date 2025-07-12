@@ -9,6 +9,15 @@ import {
   Alert,
 } from 'react-native';
 
+import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import type {RootStackParamList} from '../types/RootStackParamList';
+import {useNavigation} from '@react-navigation/native';
+
+export type SignupScreenNavigationProp = NativeStackNavigationProp<
+  RootStackParamList,
+  'Login'
+>;
+
 const SignUp = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -19,6 +28,37 @@ const SignUp = () => {
       '회원가입 시도',
       `Email: ${email}\nPassword: ${password}\nName: ${name}`,
     );
+  };
+
+  const navigation = useNavigation<SignupScreenNavigationProp>();
+
+  const handleSignUp = async () => {
+    // Alert.alert('로그인 시도', `Email: ${email}\nPassword: ${password}`);
+    Alert.alert(
+      '회원가입 시도',
+      `login_id: ${email}\nlogin_password: ${password}`,
+    );
+    try {
+      const response = await fetch('https://nextboard-api.hooiam.net/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          // 필요한 경우 추가 헤더 (Authorization 등)
+        },
+        body: JSON.stringify({
+          login_id: email,
+          login_password: password,
+          name: name,
+        }),
+      });
+
+      const data = await response.json();
+      console.log('Success:', data);
+
+      navigation.navigate('Login');
+    } catch (error) {
+      console.error('Error:', error);
+    }
   };
 
   return (
@@ -53,7 +93,7 @@ const SignUp = () => {
           <TextInput style={styles.input} value={name} onChangeText={setName} />
         </View>
 
-        <TouchableOpacity style={styles.button} onPress={handleSignIn}>
+        <TouchableOpacity style={styles.button} onPress={handleSignUp}>
           <Text style={styles.buttonText}>Sign up</Text>
         </TouchableOpacity>
       </View>

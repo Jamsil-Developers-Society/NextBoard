@@ -9,17 +9,14 @@ import {
   SafeAreaView,
   Alert,
 } from 'react-native';
+import {setItem} from '../utils/Storage';
 
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
-
-export type RootStackParamList = {
-  Login: undefined;
-  Signup: undefined;
-};
+import type {RootStackParamList} from '../types/RootStackParamList';
 
 export type LoginScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
-  'Login'
+  'RoomSelect'
 >;
 
 const Login = () => {
@@ -32,8 +29,30 @@ const Login = () => {
     navigation.navigate('Signup');
   };
 
-  const handleSignIn = () => {
+  const handleSignIn = async () => {
     Alert.alert('로그인 시도', `Email: ${email}\nPassword: ${password}`);
+    try {
+      const response = await fetch('https://nextboard-api.hooiam.net/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          // 필요한 경우 추가 헤더 (Authorization 등)
+        },
+        body: JSON.stringify({
+          login_id: email,
+          login_password: password,
+        }),
+      });
+
+      const data = await response.json();
+      console.log('Success:', data);
+
+      setItem('id', data.id);
+
+      navigation.navigate('RoomSelect');
+    } catch (error) {
+      console.error('Error:', error);
+    }
   };
 
   return (

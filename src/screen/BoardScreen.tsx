@@ -21,7 +21,7 @@ interface DrawPath {
   path: SkPath;
   color: string;
   strokeWidth: number;
-  points: { x: number; y: number }[]; // 추가
+  points: {x: number; y: number}[]; // 추가
 }
 
 const BoardScreen: React.FC = () => {
@@ -35,48 +35,48 @@ const BoardScreen: React.FC = () => {
   const socketRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
-  const socket = new WebSocket('ws://your.server.address/ws/path');
-  
-  socketRef.current = socket;
+    const socket = new WebSocket('wss://nextboard-api.hooiam.net/ws');
 
-  socket.onopen = () => {
-    console.log('WebSocket 연결됨');
-    
-    socket.onmessage = event => {
-      const message = JSON.parse(event.data);
-      
-      if (message.type === 'draw') {
-        const {color, strokeWidth, point} = message;
-        
-        const newPath = Skia.Path.Make();
-        newPath.moveTo(point.x, point.y);
-        newPath.lineTo(point.x + 0.1, point.y + 0.1);
-        
-        const newDrawPath: DrawPath = {
-          path: newPath,
-          color,
-          strokeWidth,
-          points: [point],
-        };
-        
-        setPaths(prev => [...prev, newDrawPath]);
-      }
+    socketRef.current = socket;
+
+    socket.onopen = () => {
+      console.log('WebSocket 연결됨');
+
+      socket.onmessage = event => {
+        const message = JSON.parse(event.data);
+
+        if (message.type === 'draw') {
+          const {color, strokeWidth, point} = message;
+
+          const newPath = Skia.Path.Make();
+          newPath.moveTo(point.x, point.y);
+          newPath.lineTo(point.x + 0.1, point.y + 0.1);
+
+          const newDrawPath: DrawPath = {
+            path: newPath,
+            color,
+            strokeWidth,
+            points: [point],
+          };
+
+          setPaths(prev => [...prev, newDrawPath]);
+        }
+      };
     };
-  };
 
-  socket.onerror = e => {
-    console.error('WebSocket 오류:', e);
-  };
+    socket.onerror = e => {
+      console.error('WebSocket 오류:', e);
+    };
 
-  socket.onclose = () => {
-    console.log('WebSocket 연결 종료');
-  };
+    socket.onclose = () => {
+      console.log('WebSocket 연결 종료');
+    };
 
-  return () => {
-    socket.close();
-  };
+    return () => {
+      socket.close();
+    };
   }, []);
-  
+
   const [, forceUpdate] = useState(0);
 
   const panResponder = useRef(
@@ -100,9 +100,12 @@ const BoardScreen: React.FC = () => {
         if (currentPath.current) {
           currentPath.current.path.lineTo(point.x, point.y);
           currentPath.current.points.push(point);
-        
+
           // 🔴 서버로 전송
-          if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+          if (
+            socketRef.current &&
+            socketRef.current.readyState === WebSocket.OPEN
+          ) {
             const data = {
               type: 'draw',
               color: currentPath.current.color,
@@ -111,9 +114,9 @@ const BoardScreen: React.FC = () => {
             };
             socketRef.current.send(JSON.stringify(data));
           }
-        
+
           //canvasRef.current?.redraw();
-              // ✅ 실시간 갱신 유도
+          // ✅ 실시간 갱신 유도
           forceUpdate(n => n + 1);
         }
       },
