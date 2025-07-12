@@ -188,7 +188,10 @@ async def login(user: UserLogin):
     db_user = get_user_by_login_id(user.login_id)
     if not db_user or db_user["login_password"] != user.login_password:
         raise HTTPException(status_code=401, detail="Invalid login credentials.")
-    return {"message": f"Welcome, {db_user['name']}!"}
+    return {
+        "id": db_user["id"],
+        "name": db_user["name"]
+    }
 
 
 # ----------------------------
