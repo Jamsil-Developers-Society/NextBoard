@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   PanResponder,
+  useWindowDimensions,
 } from 'react-native';
 import Slider from '@react-native-community/slider';
 import {
@@ -16,6 +17,7 @@ import {
   useCanvasRef,
 } from '@shopify/react-native-skia';
 import type {SkPath} from '@shopify/react-native-skia';
+import {SafeAreaView} from 'react-native-safe-area-context';
 
 interface DrawPath {
   path: SkPath;
@@ -33,6 +35,9 @@ const BoardScreen: React.FC = () => {
   const currentPath = useRef<DrawPath | null>(null);
   const canvasRef = useCanvasRef();
   const socketRef = useRef<WebSocket | null>(null);
+  const canvasHeightRef = useRef<number>(0); // 캔버스 실제 높이 저장
+  const {height: windowHeight} = useWindowDimensions();
+  const canvasLayout = useRef({y: 0});
 
   useEffect(() => {
     const socket = new WebSocket('wss://nextboard-api.hooiam.net/ws');
@@ -78,41 +83,59 @@ const BoardScreen: React.FC = () => {
   }, []);
 
   const [, forceUpdate] = useState(0);
+  // 상태 값의 최신 참조를 위한 ref 추가
+  const modeRef = useRef(mode);
+  const colorRef = useRef(color);
+  const lineWidthRef = useRef(lineWidth);
+  // 상태가 바뀔 때마다 ref를 갱신
+  useEffect(() => {
+    modeRef.current = mode;
+  }, [mode]);
+
+  useEffect(() => {
+    colorRef.current = color;
+  }, [color]);
+
+  useEffect(() => {
+    lineWidthRef.current = lineWidth;
+  }, [lineWidth]);
 
   const panResponder = useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
       onPanResponderGrant: e => {
-        const {locationX, locationY} = e.nativeEvent;
+        const {pageX, pageY} = e.nativeEvent;
+        const x = pageX;
+        const y = pageY - canvasLayout.current.y;
+
         const path = Skia.Path.Make();
-        path.moveTo(locationX, locationY);
+        path.moveTo(x, y);
 
         currentPath.current = {
           path,
-          color: mode === 'pen' ? color : '#ffffff',
-          strokeWidth: lineWidth,
-          points: [{x: locationX, y: locationY}], // 추가
+          color: modeRef.current === 'pen' ? colorRef.current : '#ffffff',
+          strokeWidth: lineWidthRef.current,
+          points: [{x, y}],
         };
       },
-      onPanResponderMove: (e, gestureState) => {
-        const {locationX, locationY} = e.nativeEvent;
-        const point = {x: locationX, y: locationY};
-        if (currentPath.current) {
-          currentPath.current.path.lineTo(point.x, point.y);
-          currentPath.current.points.push(point);
+      onPanResponderMove: e => {
+        const {pageX, pageY} = e.nativeEvent;
+        const x = pageX;
+        const y = pageY - canvasLayout.current.y;
 
-          // 🔴 서버로 전송
-          if (
-            socketRef.current &&
-            socketRef.current.readyState === WebSocket.OPEN
-          ) {
-            const data = {
-              type: 'draw',
-              color: currentPath.current.color,
-              strokeWidth: currentPath.current.strokeWidth,
-              point,
-            };
-            socketRef.current.send(JSON.stringify(data));
+        if (currentPath.current) {
+          currentPath.current.path.lineTo(x, y);
+          currentPath.current.points.push({x, y});
+
+          if (socketRef.current?.readyState === WebSocket.OPEN) {
+            socketRef.current.send(
+              JSON.stringify({
+                type: 'draw',
+                color: currentPath.current.color,
+                strokeWidth: currentPath.current.strokeWidth,
+                point: {x, y},
+              }),
+            );
           }
 
           //canvasRef.current?.redraw();
@@ -136,32 +159,32 @@ const BoardScreen: React.FC = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.safeArea}>
       {/* <Canvas style={styles.canvas} onTouch={handleTouch}>
-        {paths.map((p, i) => (
-          <Path
-            key={i}
-            path={p.path}
-            color={p.color}
-            style="stroke"
-            strokeWidth={p.strokeWidth}
-            strokeCap="round"
-          />
-        ))}
-      </Canvas> */}
+          {paths.map((p, i) => (
+            <Path
+              key={i}
+              path={p.path}
+              color={p.color}
+              style="stroke"
+              strokeWidth={p.strokeWidth}
+              strokeCap="round"
+            />
+          ))}
+        </Canvas> */}
       {/* <View style={styles.container} {...panResponder.panHandlers}>
-        <Canvas ref={canvasRef} style={styles.canvas} pointerEvents="none">
-          {paths.map((p, i) =>
-            p && p.path ? (
-              <Path
-                key={i}
-                path={p.path}
-                color={p.color}
-                style="stroke"
-                strokeWidth={p.strokeWidth}
-              />
-            ) : null,
-          )}
+          <Canvas ref={canvasRef} style={styles.canvas} pointerEvents="none">
+            {paths.map((p, i) =>
+              p && p.path ? (
+                <Path
+                  key={i}
+                  path={p.path}
+                  color={p.color}
+                  style="stroke"
+                  strokeWidth={p.strokeWidth}
+                />
+              ) : null,
+            )}
 
           {currentPath.current && (
             <Path
@@ -174,7 +197,11 @@ const BoardScreen: React.FC = () => {
         </Canvas>
       </View> */}
 
-      <View style={styles.container}>
+      <View
+        style={{flex: 1}}
+        onLayout={e => {
+          canvasLayout.current.y = e.nativeEvent.layout.y;
+        }}>
         <Canvas ref={canvasRef} style={styles.canvas}>
           {paths.map((p, i) => (
             <Path
@@ -236,13 +263,20 @@ const BoardScreen: React.FC = () => {
           <Button title="유저 초대" onPress={() => console.log('invite')} />
         </View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 
 export default BoardScreen;
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#fff', // 배경색 지정
+  },
+  canvasWrapper: {
+    flex: 1,
+  },
   container: {flex: 1, backgroundColor: '#fff'},
   canvas: {flex: 1},
   controls: {

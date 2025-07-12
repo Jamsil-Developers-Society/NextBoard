@@ -11,6 +11,7 @@ import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {Colors, Header} from 'react-native/Libraries/NewAppScreen';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
+import {SafeAreaProvider} from 'react-native-safe-area-context';
 
 // 👇 Login 스크린 import (만약 상대 경로 다르면 수정)
 import Login from './src/screen/Login';
@@ -55,17 +56,19 @@ const Stack = createNativeStackNavigator();
 const App = () => {
   return (
     <GestureHandlerRootView style={{flex: 1}}>
-      <NavigationContainer>
-        <Stack.Navigator
-          initialRouteName="Login"
-          screenOptions={{headerShown: false}}>
-          {/* <Stack.Screen name="Home" component={HomeScreen} /> */}
-          <Stack.Screen name="Login" component={Login} />
-          <Stack.Screen name="Signup" component={Signup} />
-          <Stack.Screen name="BoardScreen" component={BoardScreen} />
-          <Stack.Screen name="RoomSelect" component={RoomSelect} />
-        </Stack.Navigator>
-      </NavigationContainer>
+      <SafeAreaProvider>
+        <NavigationContainer>
+          <Stack.Navigator
+            initialRouteName="BoardScreen"
+            screenOptions={{headerShown: false}}>
+            {/* <Stack.Screen name="Home" component={HomeScreen} /> */}
+            <Stack.Screen name="Login" component={Login} />
+            <Stack.Screen name="Signup" component={Signup} />
+            <Stack.Screen name="BoardScreen" component={BoardScreen} />
+            <Stack.Screen name="RoomSelect" component={RoomSelect} />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </SafeAreaProvider>
     </GestureHandlerRootView>
   );
 };
