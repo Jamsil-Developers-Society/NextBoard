@@ -33,11 +33,13 @@ const BoardSelectScreen = () => {
   })();
 
   const handleCreate = async () => {
-    navigation.navigate('BoardScreen', {id: await user_id});
+    // navigation.navigate('BoardScreen', {id: await user_id});
+    navigation.navigate('BoardScreen');
   };
 
   const handleJoin = async () => {
-    navigation.navigate('BoardScreen', {id: await user_id, roomId: 1});
+    // navigation.navigate('BoardScreen', {id: await user_id, roomId: 1});
+    navigation.navigate('BoardScreen');
   };
 
   return (
