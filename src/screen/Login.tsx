@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useRef, useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import {
   View,
@@ -16,7 +16,7 @@ import type {RootStackParamList} from '../types/RootStackParamList';
 
 export type LoginScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
-  'RoomSelect'
+  'ProjectSelectScreen'
 >;
 
 const Login = () => {
@@ -24,6 +24,7 @@ const Login = () => {
   const [password, setPassword] = useState('');
 
   const navigation = useNavigation<LoginScreenNavigationProp>();
+  const passwordInputRef = useRef<TextInput>(null);
 
   const handleSignUp = () => {
     navigation.navigate('Signup');
@@ -47,9 +48,12 @@ const Login = () => {
       const data = await response.json();
       console.log('Success:', data);
 
-      setItem('id', data.id);
+      // await setItem('id', data.id);
 
-      navigation.navigate('RoomSelect');
+      navigation.navigate('ProjectSelectScreen', {
+        user_id: data.id,
+        user_name: data.name,
+      });
     } catch (error) {
       console.error('Error:', error);
     }
@@ -64,11 +68,13 @@ const Login = () => {
         <View style={styles.formGroup}>
           <Text style={styles.label}>Email ID</Text>
           <TextInput
+            ref={passwordInputRef}
             style={styles.input}
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
             autoCapitalize="none"
+            onSubmitEditing={() => passwordInputRef.current?.focus()}
           />
         </View>
 
@@ -79,6 +85,7 @@ const Login = () => {
             value={password}
             onChangeText={setPassword}
             secureTextEntry
+            onSubmitEditing={handleSignIn}
           />
           <TouchableOpacity style={styles.linkRight}>
             <Text style={styles.linkText}>Forget Password?</Text>

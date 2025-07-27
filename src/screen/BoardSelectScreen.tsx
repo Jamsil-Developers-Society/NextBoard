@@ -20,7 +20,7 @@ export type RoomSelectNavigationProp = NativeStackNavigationProp<
   'BoardScreen'
 >;
 
-const RoomSelect = () => {
+const BoardSelectScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -43,14 +43,14 @@ const RoomSelect = () => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.innerContainer}>
-        <Button onPress={handleCreate} title="방 생성"></Button>
-        <Button onPress={handleJoin} title="방 참여"></Button>
+        <Button onPress={handleCreate} title="프로젝트 생성"></Button>
+        {/* <Button onPress={handleJoin} title="방 참여"></Button> */}
       </View>
     </SafeAreaView>
   );
 };
 
-export default RoomSelect;
+export default BoardSelectScreen;
 
 const styles = StyleSheet.create({
   container: {

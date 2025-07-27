@@ -17,7 +17,8 @@ import {SafeAreaProvider} from 'react-native-safe-area-context';
 import Login from './src/screen/Login';
 import Signup from './src/screen/SignUp';
 import BoardScreen from './src/screen/BoardScreen';
-import RoomSelect from './src/screen/RoomSelect';
+import ProjectSelectScreen from './src/screen/ProjectSelectScreen';
+import BoardSelectScreen from './src/screen/BoardSelectScreen';
 // import BoardScreen from './src/screen/BoardScreen_2';
 
 const Stack = createNativeStackNavigator();
@@ -59,13 +60,20 @@ const App = () => {
       <SafeAreaProvider>
         <NavigationContainer>
           <Stack.Navigator
-            initialRouteName="BoardScreen"
+            initialRouteName="Login"
             screenOptions={{headerShown: false}}>
             {/* <Stack.Screen name="Home" component={HomeScreen} /> */}
             <Stack.Screen name="Login" component={Login} />
             <Stack.Screen name="Signup" component={Signup} />
             <Stack.Screen name="BoardScreen" component={BoardScreen} />
-            <Stack.Screen name="RoomSelect" component={RoomSelect} />
+            <Stack.Screen
+              name="ProjectSelectScreen"
+              component={ProjectSelectScreen}
+            />
+            <Stack.Screen
+              name="BoardSelectScreen"
+              component={BoardSelectScreen}
+            />
           </Stack.Navigator>
         </NavigationContainer>
       </SafeAreaProvider>

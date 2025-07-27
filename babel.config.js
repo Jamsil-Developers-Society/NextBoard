@@ -8,6 +8,8 @@ module.exports = {
   presets: [
     'module:@react-native/babel-preset',
     '@babel/preset-typescript', // 이 줄 추가
+    'module:metro-react-native-babel-preset',
+    '@babel/preset-react',
   ],
   plugins: ['react-native-reanimated/plugin'],
 };
