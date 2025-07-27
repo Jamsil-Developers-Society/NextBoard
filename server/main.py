@@ -104,8 +104,13 @@ class ChatSessionFastAPI:
                     self.room.grant_host_to_db(target_user_id)
                     self.room.leave(self)
 
+                elif command == "draw_board":
+                     for member in self.room.members:
+                        asyncio.create_task(member.send_message(message))
+
                 else:
                     await self.send_message(f"Unknown command: {command}")
+                    
             else:
                 self.room.broadcast(self.user_name, message)
                 self.room.save_message_to_db(self.user_id, message)

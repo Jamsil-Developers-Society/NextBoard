@@ -18,6 +18,8 @@ import {
 } from '@shopify/react-native-skia';
 import type {SkPath} from '@shopify/react-native-skia';
 import {SafeAreaView} from 'react-native-safe-area-context';
+import { useRoute } from '@react-navigation/native';
+
 
 interface DrawPath {
   path: SkPath;
@@ -38,6 +40,10 @@ const BoardScreen: React.FC = () => {
   const canvasHeightRef = useRef<number>(0); // 캔버스 실제 높이 저장
   const {height: windowHeight} = useWindowDimensions();
   const canvasLayout = useRef({y: 0});
+  const route = useRoute();
+  //const { id, roomId } = route.params as { id: string; roomId?: number };
+  const [userList, setUserList] = useState<{ id: string; name: string }[]>([]);
+
 
   useEffect(() => {
     const socket = new WebSocket('wss://nextboard-api.hooiam.net/ws');
@@ -47,8 +53,22 @@ const BoardScreen: React.FC = () => {
     socket.onopen = () => {
       console.log('WebSocket 연결됨');
 
+      // 유저 정보 전송
+      socket.send(JSON.stringify({
+        type: 'join',
+        //user_id: id,
+        //room_id: roomId, // roomId가 없을 경우 undefined
+      }));
+
       socket.onmessage = event => {
         const message = JSON.parse(event.data);
+        const data = JSON.parse(event.data);
+      
+        if (data.type === 'user_list') {
+          setUserList(data.users); // [{ id: 'abc', name: '홍길동' }, ...]
+        }
+          
+
 
         if (message.type === 'draw') {
           const {color, strokeWidth, point} = message;
@@ -132,6 +152,8 @@ const BoardScreen: React.FC = () => {
               JSON.stringify({
                 command: 'draw_board',
                 type: 'draw',
+                //user_id: id,
+                //room_id: roomId, // roomId가 없을 경우 undefined
                 color: currentPath.current.color,
                 strokeWidth: currentPath.current.strokeWidth,
                 point: {x, y},
@@ -161,43 +183,6 @@ const BoardScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      {/* <Canvas style={styles.canvas} onTouch={handleTouch}>
-          {paths.map((p, i) => (
-            <Path
-              key={i}
-              path={p.path}
-              color={p.color}
-              style="stroke"
-              strokeWidth={p.strokeWidth}
-              strokeCap="round"
-            />
-          ))}
-        </Canvas> */}
-      {/* <View style={styles.container} {...panResponder.panHandlers}>
-          <Canvas ref={canvasRef} style={styles.canvas} pointerEvents="none">
-            {paths.map((p, i) =>
-              p && p.path ? (
-                <Path
-                  key={i}
-                  path={p.path}
-                  color={p.color}
-                  style="stroke"
-                  strokeWidth={p.strokeWidth}
-                />
-              ) : null,
-            )}
-
-          {currentPath.current && (
-            <Path
-              path={currentPath.current.path}
-              color={currentPath.current.color}
-              style="stroke"
-              strokeWidth={currentPath.current.strokeWidth}
-            />
-          )}
-        </Canvas>
-      </View> */}
-
       <View
         style={{flex: 1}}
         onLayout={e => {
@@ -222,6 +207,28 @@ const BoardScreen: React.FC = () => {
             />
           )}
         </Canvas>
+
+         {/* 오른쪽 사이드바 추가 */}
+        <View
+          style={{
+            position: 'absolute',
+            top: 0,
+            right: 0,
+            width: 100,
+            height: '100%',
+            backgroundColor: '#f0f0f0',
+            borderLeftWidth: 1,
+            borderColor: '#ccc',
+            padding: 10,
+          }}
+        >
+          <Text style={{ fontWeight: 'bold', marginBottom: 10 }}>접속 유저</Text>
+          {userList.map((user) => (
+            <Text key={user.id} style={{ marginBottom: 5 }}>
+              {user.name}
+            </Text>
+          ))}
+        </View>
 
         {/* 터치 감지를 위한 오버레이 */}
         <View
