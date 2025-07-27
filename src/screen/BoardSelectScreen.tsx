@@ -26,11 +26,11 @@ const BoardSelectScreen = () => {
 
   const navigation = useNavigation<RoomSelectNavigationProp>();
 
-  const user_id = (async () => {
-    const raw = await getItem('id');
-    const parsed = parseInt(raw ?? '', 10);
-    return isNaN(parsed) ? 0 : parsed;
-  })();
+  // const user_id = (async () => {
+  //   const raw = await getItem('id');
+  //   const parsed = parseInt(raw ?? '', 10);
+  //   return isNaN(parsed) ? 0 : parsed;
+  // })();
 
   const handleCreate = async () => {
     // navigation.navigate('BoardScreen', {id: await user_id});
