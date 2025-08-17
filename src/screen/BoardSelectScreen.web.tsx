@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import {
   View,
@@ -9,22 +9,45 @@ import {
   SafeAreaView,
   Alert,
   Button,
+  Modal,
+  Pressable,
 } from 'react-native';
 import {getItem} from '../utils/Storage';
 
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import type {RootStackParamList} from '../types/RootStackParamList';
+import BackButton from '../components/BackButton';
+import BoardItem from '../components/BoardItem';
 
 export type RoomSelectNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
   'BoardScreen'
 >;
 
-const BoardSelectScreen = () => {
+type BoardSelectScreenProps = {
+  id: number | null;
+  name: string | null;
+};
+
+const BoardSelectScreen = ({id, name}: BoardSelectScreenProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   const navigation = useNavigation<RoomSelectNavigationProp>();
+
+  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
+  const [boardName, setBoardName] = useState('');
+
+  const inputRef = useRef<TextInput>(null);
+
+  const onPressModalOpen = () => {
+    console.log('팝업을 여는 중입니다.');
+    setIsModalVisible(true);
+  };
+
+  const onPressModalClose = () => {
+    setIsModalVisible(false);
+  };
 
   // const user_id = (async () => {
   //   const raw = await getItem('id');
@@ -42,12 +65,61 @@ const BoardSelectScreen = () => {
     navigation.navigate('BoardScreen');
   };
 
+  useEffect(() => {
+    if (isModalVisible) {
+      // Modal 애니메이션이 끝난 뒤 포커스 주기 (딜레이를 주면 안전)
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 100);
+    }
+  }, [isModalVisible]);
+
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.innerContainer}>
-        <Button onPress={handleCreate} title="프로젝트 생성"></Button>
-        {/* <Button onPress={handleJoin} title="방 참여"></Button> */}
+      <View style={styles.boardListBar}>
+        <View style={styles.boardListBarHeader}>
+          <Text style={styles.boardListBarHeaderText}>보드 리스트</Text>
+        </View>
+        <View>
+          <BoardItem board_id={1} name="gfdsa" />
+        </View>
+        <View>
+          <BoardItem board_id={2} name="트스테 입니다" />
+        </View>
       </View>
+      <View style={styles.innerContainer}>
+        <BackButton />
+        <TouchableOpacity style={styles.bigButton} onPress={handleCreate}>
+          <Text style={styles.bigButtonText}>보드 생성</Text>
+        </TouchableOpacity>
+      </View>
+      <Modal animationType="slide" visible={isModalVisible} transparent={true}>
+        {/* 백드롭: 화면 전체 덮고 클릭 시 닫기 */}
+        <Pressable style={styles.backdrop} onPress={onPressModalClose}>
+          {/* 모달 콘텐츠: 내부 클릭은 닫기 이벤트 버블링 방지 */}
+          <Pressable
+            style={styles.modalView}
+            onPress={e => e.stopPropagation()}>
+            <View>
+              <Text style={styles.modalTextStyle}>
+                생성할 프로젝트의 이름을 입력해 주세요.
+              </Text>
+            </View>
+            <TextInput
+              ref={inputRef}
+              style={styles.input}
+              value={boardName}
+              onChangeText={setBoardName}
+              autoCapitalize="none"
+            />
+            <Button title="생성" />
+
+            <Pressable onPress={onPressModalClose}>
+              <Text>취소</Text>
+            </Pressable>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -58,12 +130,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: 'row', // ✅ row로 변경
+    // alignItems/justifyContent는 빼거나 기본값으로
   },
   innerContainer: {
-    width: '90%',
-    maxWidth: 290,
+    flex: 1, // ✅ 남은 영역 전부 차지
+    alignItems: 'center', // ✅ 가로 중앙
+    justifyContent: 'center', // ✅ 세로 중앙
   },
   heading: {
     fontSize: 32,
@@ -124,5 +197,66 @@ const styles = StyleSheet.create({
   },
   footerLink: {
     marginLeft: 4,
+  },
+  boardListBar: {
+    // position: 'absolute',       // ❌ 제거
+    // top: 0,
+    // left: 0,
+    width: '30%', // ✅ 고정 폭 컬럼
+    height: '100%',
+    backgroundColor: '#616161ff',
+    borderLeftWidth: 1,
+    borderColor: '#ccc',
+    padding: 10,
+  },
+  boardListBarHeader: {
+    borderBottomWidth: 3,
+    borderBottomColor: '#00000088',
+  },
+  boardListBarHeaderText: {
+    fontSize: 24,
+  },
+  bigButton: {
+    width: 200, // 버튼 너비
+    height: 60, // 버튼 높이
+    backgroundColor: '#6366f1',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 10,
+  },
+  bigButtonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  backdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)', // 반투명 검정
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  // ✅ 모달 박스 (가운데 뜨도록 marginTop 제거)
+  modalView: {
+    // marginTop: 230,  // ❌ 제거
+    margin: 30,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 35,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+    // 선택: 너비 제어
+    // width: '80%', maxWidth: 420,
+  },
+
+  modalTextStyle: {
+    color: '#17191c',
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 50,
   },
 });

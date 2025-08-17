@@ -14,13 +14,19 @@ import {getItem} from '../utils/Storage';
 
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import type {RootStackParamList} from '../types/RootStackParamList';
+import ProjectItem from '../components/ProjectItem';
 
 export type RoomSelectNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
   'BoardSelectScreen'
 >;
 
-const ProjectSelectScreen = () => {
+type ProjectSelectScreenProps = {
+  id: number | null;
+  name: string | null;
+};
+
+const ProjectSelectScreen = ({id, name}: ProjectSelectScreenProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -36,12 +42,23 @@ const ProjectSelectScreen = () => {
     navigation.navigate('BoardSelectScreen', {});
   };
 
-  const handleJoin = async (board_id: number) => {
-    navigation.navigate('BoardSelectScreen', {board_id: board_id});
+  const handleJoin = async (boardId: number) => {
+    navigation.navigate('BoardSelectScreen', {board_id: boardId});
   };
 
   return (
     <SafeAreaView style={styles.container}>
+      <View style={styles.projectListBar}>
+        <View style={styles.projectListBarHeader}>
+          <Text style={styles.projectListBarHeaderText}>프로젝트 리스트</Text>
+        </View>
+        <View>
+          <ProjectItem project_id={1} name="asdfg" />
+        </View>
+        <View>
+          <ProjectItem project_id={2} name="테스트 입니다" />
+        </View>
+      </View>
       <View style={styles.innerContainer}>
         <Button onPress={handleCreate} title="프로젝트 생성"></Button>
         {/* <Button onPress={handleJoin} title="방 참여"></Button> */}
@@ -60,8 +77,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   innerContainer: {
-    width: '90%',
-    maxWidth: 290,
+    width: '80%',
+    top: 0,
+    right: 0,
+    // maxWidth: 290,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
   },
   heading: {
     fontSize: 32,
@@ -122,5 +144,23 @@ const styles = StyleSheet.create({
   },
   footerLink: {
     marginLeft: 4,
+  },
+  projectListBar: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '30%',
+    height: '100%',
+    backgroundColor: '#616161ff',
+    borderLeftWidth: 1,
+    borderColor: '#ccc',
+    padding: 10,
+  },
+  projectListBarHeader: {
+    borderBottomWidth: 3,
+    borderBottomColor: '#00000088',
+  },
+  projectListBarHeaderText: {
+    fontSize: 24,
   },
 });

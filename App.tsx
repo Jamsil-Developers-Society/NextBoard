@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   ScrollView,
   StatusBar,
@@ -9,9 +9,10 @@ import {
 } from 'react-native';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import {Colors, Header} from 'react-native/Libraries/NewAppScreen';
+// import {Colors, Header} from 'react-native/Libraries/NewAppScreen';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
+import Header from './src/components/Header';
 
 // 👇 Login 스크린 import (만약 상대 경로 다르면 수정)
 import Login from './src/screen/Login';
@@ -55,25 +56,37 @@ const Stack = createNativeStackNavigator();
 // };
 
 const App = () => {
+  const [id, setId] = useState<number | null>(null);
+  const [name, setName] = useState<string | null>(null);
+
   return (
     <GestureHandlerRootView style={{flex: 1}}>
       <SafeAreaProvider>
         <NavigationContainer>
+          <Header id={id} setId={setId} name={name} setName={setName} />
           <Stack.Navigator
             initialRouteName="Login"
             screenOptions={{headerShown: false}}>
             {/* <Stack.Screen name="Home" component={HomeScreen} /> */}
-            <Stack.Screen name="Login" component={Login} />
+            <Stack.Screen name="Login">
+              {props => (
+                <Login
+                  {...props}
+                  id={id}
+                  setId={setId}
+                  name={name}
+                  setName={setName}
+                />
+              )}
+            </Stack.Screen>
             <Stack.Screen name="Signup" component={Signup} />
             <Stack.Screen name="BoardScreen" component={BoardScreen} />
-            <Stack.Screen
-              name="ProjectSelectScreen"
-              component={ProjectSelectScreen}
-            />
-            <Stack.Screen
-              name="BoardSelectScreen"
-              component={BoardSelectScreen}
-            />
+            <Stack.Screen name="ProjectSelectScreen">
+              {props => <ProjectSelectScreen {...props} id={id} name={name} />}
+            </Stack.Screen>
+            <Stack.Screen name="BoardSelectScreen">
+              {props => <BoardSelectScreen {...props} id={id} name={name} />}
+            </Stack.Screen>
           </Stack.Navigator>
         </NavigationContainer>
       </SafeAreaProvider>

@@ -1,4 +1,4 @@
-import React, {useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import {
   View,
@@ -9,7 +9,7 @@ import {
   SafeAreaView,
   Alert,
 } from 'react-native';
-import {setItem} from '../utils/Storage';
+import {getItem, setItem} from '../utils/Storage';
 
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import type {RootStackParamList} from '../types/RootStackParamList';
@@ -19,12 +19,36 @@ export type LoginScreenNavigationProp = NativeStackNavigationProp<
   'ProjectSelectScreen'
 >;
 
-const Login = () => {
+type LoginProps = {
+  id: number | null;
+  setId: (id: number) => void;
+  name: string | null;
+  setName: (name: string) => void;
+};
+
+const Login = ({id, setId, name, setName}: LoginProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   const navigation = useNavigation<LoginScreenNavigationProp>();
   const passwordInputRef = useRef<TextInput>(null);
+
+  // ✅ 자동 로그인 시도
+  useEffect(() => {
+    const tryAutoLogin = async () => {
+      // const id = await getItem('id');
+      // const name = await getItem('name');
+
+      if (id != 0 && name != '' && name != null) {
+        navigation.navigate('ProjectSelectScreen', {
+          user_id: Number(id),
+          user_name: name,
+        });
+      }
+    };
+
+    tryAutoLogin();
+  }, []);
 
   const handleSignUp = () => {
     navigation.navigate('Signup');
@@ -48,7 +72,15 @@ const Login = () => {
       const data = await response.json();
       console.log('Success:', data);
 
-      // await setItem('id', data.id);
+      // 테스트 소스
+      // await setItem('id', data.id ?? 1);
+      // await setItem('name', data.name ?? 'admin');
+
+      setId(data.id);
+      setName(data.name);
+
+      // setId(1);
+      // setName('asdfg');
 
       navigation.navigate('ProjectSelectScreen', {
         user_id: data.id,

@@ -14,13 +14,20 @@ import {getItem} from '../utils/Storage';
 
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import type {RootStackParamList} from '../types/RootStackParamList';
+import BackButton from '../components/BackButton';
+import BoardItem from '../components/BoardItem';
 
 export type RoomSelectNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
   'BoardScreen'
 >;
 
-const BoardSelectScreen = () => {
+type BoardSelectScreenProps = {
+  id: number | null;
+  name: string | null;
+};
+
+const BoardSelectScreen = ({id, name}: BoardSelectScreenProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -44,7 +51,19 @@ const BoardSelectScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <View style={styles.boardListBar}>
+        <View style={styles.boardListBarHeader}>
+          <Text style={styles.boardListBarHeaderText}>프로젝트 리스트</Text>
+        </View>
+        <View>
+          <BoardItem board_id={1} name="gfdsa" />
+        </View>
+        <View>
+          <BoardItem board_id={2} name="트스테 입니다" />
+        </View>
+      </View>
       <View style={styles.innerContainer}>
+        <BackButton />
         <Button onPress={handleCreate} title="프로젝트 생성"></Button>
         {/* <Button onPress={handleJoin} title="방 참여"></Button> */}
       </View>
@@ -124,5 +143,23 @@ const styles = StyleSheet.create({
   },
   footerLink: {
     marginLeft: 4,
+  },
+  boardListBar: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: '30%',
+    height: '100%',
+    backgroundColor: '#616161ff',
+    borderLeftWidth: 1,
+    borderColor: '#ccc',
+    padding: 10,
+  },
+  boardListBarHeader: {
+    borderBottomWidth: 3,
+    borderBottomColor: '#00000088',
+  },
+  boardListBarHeaderText: {
+    fontSize: 24,
   },
 });

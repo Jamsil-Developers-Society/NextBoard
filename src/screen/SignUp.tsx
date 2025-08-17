@@ -12,6 +12,7 @@ import {
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import type {RootStackParamList} from '../types/RootStackParamList';
 import {useNavigation} from '@react-navigation/native';
+import BackButton from '../components/BackButton';
 
 export type SignupScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
@@ -64,6 +65,7 @@ const SignUp = () => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.innerContainer}>
+        <BackButton />
         <Text style={styles.heading}>Welcome</Text>
         <Text style={styles.subheading}>Sign in to continue!</Text>
 
